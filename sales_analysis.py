@@ -1,0 +1,47 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+df = pd.read_csv("sales_data.csv")
+df["Date"] = pd.to_datetime(df["Date"])
+df["Month"] = df["Date"].dt.month_name()
+
+region_revenue = df.groupby("Region")["Revenue"].sum().sort_values(ascending=False)
+plt.figure(figsize=(8,5))
+plt.bar(region_revenue.index,region_revenue.values,color="skyblue")
+plt.title("Revenue by region")
+plt.xlabel("Region")
+plt.ylabel("Revenue")
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.savefig("region_revenue.png")
+plt.close()
+
+product_revenue = df.groupby("Product")["Revenue"].sum()
+plt.figure(figsize=(8,5))
+plt.pie(product_revenue.values,labels=product_revenue.index,autopct="%1.1f%%",shadow=True,startangle=90)
+plt.title("Revenue share by product")
+plt.ylabel("")
+plt.tight_layout()
+plt.savefig("product_pie.png")
+plt.close()
+
+monyhly_trend = df.groupby("Month")["Revenue"].sum()
+month_order = ["January","February","March","April","May","June"]
+monyhly_trend = monyhly_trend.reindex(month_order,fill_value=0)
+plt.figure(figsize=(8,5))
+plt.plot(monyhly_trend.index,monyhly_trend.values,color="skyblue",marker="o")
+plt.title("monthly sales trend")
+plt.ylabel("Revenue")
+plt.xticks(rotation=45)
+plt.grid(True)
+plt.tight_layout()
+plt.savefig("monthly_trend.png")
+plt.close()
+
+pivot_table = df.pivot_table(index="Region",columns="Product",values="Revenue",aggfunc="sum",fill_value=0)
+plt.figure(figsize=(8,5))
+sns.heatmap(pivot_table,annot=True,fmt=".0f",cmap="YlGnBu")
+plt.title("Revenue heatmap: Region vs Product")
+plt.tight_layout()
+plt.savefig("heatmap.png")
+plt.close()
